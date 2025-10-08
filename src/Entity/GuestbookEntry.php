@@ -2,10 +2,22 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
 use App\Repository\GuestbookEntryRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: GuestbookEntryRepository::class)]
+#[ApiResource(
+    operations: [
+        new Get(),
+        new GetCollection(),
+        new Post()
+    ]
+)]
 class GuestbookEntry
 {
     #[ORM\Id]
@@ -14,9 +26,19 @@ class GuestbookEntry
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: "Name should not be blank")]
+    #[Assert\Length(
+        max:100,
+        maxMessage: "Name should not be more than 100 characters",
+    )]
     private ?string $name = null;
 
     #[ORM\Column(type: 'text')]
+    #[Assert\NotBlank(message: "Message should not be blank")]
+    #[Assert\Length(
+        min: 5,
+        minMessage: "Message should not be less than 5 characters",
+    )]
     private ?string $message = null;
 
     #[ORM\Column]
