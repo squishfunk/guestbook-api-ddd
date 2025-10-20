@@ -18,12 +18,11 @@ doctrine:
             Doctrine\DBAL\Platforms\PostgreSQLPlatform: identity
         auto_mapping: true
         mappings:
-            App:
-                type: attribute
+            GuestbookEntry:
                 is_bundle: false
-                dir: '%kernel.project_dir%/src/Entity'
-                prefix: 'App\Entity'
-                alias: App
+                type: attribute
+                dir: '%kernel.project_dir%/src/GuestbookEntry/Domain/Entity'
+                prefix: 'App\GuestbookEntry\Domain\Entity'
         controller_resolver:
             auto_mapping: false
 

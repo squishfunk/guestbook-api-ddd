@@ -1,0 +1,7 @@
+guestbook_entry_controllers:
+    resource: ../../src/GuestbookEntry/UI/Controller/
+    type: attribute
+
+kernel:
+    resource: App\Kernel
+    type: attribute
