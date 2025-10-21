@@ -29,12 +29,11 @@ final class GuestbookEntryController extends AbstractController
 
         $command = $this->serializer->deserialize($request->getContent(), CreateGuestbookEntryCommand::class, 'json');
 
-        $entry = $createGuestbookEntryHandler->__invoke($command);
-        $entryArray = $this->serializer->normalize($entry, null, ['groups' => ['guestbook']]);
+        $entryView = $createGuestbookEntryHandler->__invoke($command);
 
         return new JsonResponse([
             'success' => true,
-            'guestbook_entry' => $entryArray
+            'guestbook_entry' => $entryView
         ]);
     }
 
@@ -45,13 +44,6 @@ final class GuestbookEntryController extends AbstractController
         $limit = (int) $request->query->get('limit', 10);
 
         $result = $getGuestbookEntriesHandler->__invoke($page, $limit);
-
-        $result['entries'] = $this->serializer->normalize(
-            $result['entries'],
-            null,
-            ['groups' => ['guestbook']]
-        );
-
 
         return new JsonResponse($result);
     }

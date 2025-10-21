@@ -21,8 +21,8 @@ doctrine:
             GuestbookEntry:
                 is_bundle: false
                 type: attribute
-                dir: '%kernel.project_dir%/src/GuestbookEntry/Domain/Entity'
-                prefix: 'App\GuestbookEntry\Domain\Entity'
+                dir: '%kernel.project_dir%/src/GuestbookEntry/Infrastructure/Persistence'
+                prefix: 'App\GuestbookEntry\Infrastructure\Persistence'
         controller_resolver:
             auto_mapping: false
 

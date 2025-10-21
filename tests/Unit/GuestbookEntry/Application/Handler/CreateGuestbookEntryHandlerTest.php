@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\GuestbookEntry\Application\Handler;
+namespace App\Tests\Unit\GuestbookEntry\Application\Handler;
 
 use App\GuestbookEntry\Application\Command\CreateGuestbookEntryCommand;
 use App\GuestbookEntry\Application\Handler\CreateGuestbookEntryHandler;
@@ -16,7 +16,7 @@ class CreateGuestbookEntryHandlerTest extends TestCase
         $mockRepo->expects($this->once())
             ->method('save')
             ->with($this->callback(function(GuestbookEntry $entry) {
-                    return $entry->author() === 'KubaDDD'
+                    return $entry->author()->getDisplayName() === 'KubaDDD'
                     && $entry->message() === 'Hello World';
             }));
 

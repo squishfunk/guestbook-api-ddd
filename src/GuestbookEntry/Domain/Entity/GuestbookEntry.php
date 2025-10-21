@@ -2,40 +2,36 @@
 
 namespace App\GuestbookEntry\Domain\Entity;
 
+use App\GuestbookEntry\Domain\ValueObject\AuthorInterface;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity]
-#[ORM\Table(name: 'guestbook_entry')]
 class GuestbookEntry
 {
     const MAX_MESSAGE_LENGTH = 300;
     const MAX_AUTHOR_LENGTH = 64;
-    #[ORM\Id]
-    #[ORM\Column(type: 'string', length: 36)]
-    #[Groups(['guestbook'])]
+
     private string $id;
 
-    #[ORM\Column(type: 'string', length: 100)]
-    #[Groups(['guestbook'])]
-    private string $author;
+    private AuthorInterface $author;
 
-    #[ORM\Column(type: 'text')]
-    #[Groups(['guestbook'])]
     private string $message;
 
-    #[ORM\Column(type: 'datetime_immutable')]
-    #[Groups(['guestbook'])]
     private DateTimeImmutable $createdAt;
 
-    public function __construct(string $author, string $message)
+    public function __construct(AuthorInterface $author, string $message, ?DateTimeImmutable $createdAt = null)
     {
         $this->id = Uuid::v1();
         $this->setAuthor($author);
         $this->setMessage($message);
-        $this->createdAt = new DateTimeImmutable();
+
+        if($createdAt){
+            $this->createdAt = $createdAt;
+        }else{
+            $this->createdAt = new DateTimeImmutable();
+        }
     }
 
     public function createdAt(): DateTimeImmutable
@@ -48,7 +44,7 @@ class GuestbookEntry
         return $this->message;
     }
 
-    public function author(): string
+    public function author(): AuthorInterface
     {
         return $this->author;
     }
@@ -71,13 +67,13 @@ class GuestbookEntry
         $this->message = $message;
     }
 
-    private function setAuthor(string $author)
+    private function setAuthor(AuthorInterface $author)
     {
-        if (trim($author) === '') {
+        if (trim($author->getDisplayName()) === '') {
             throw new \DomainException('Author cannot be empty.');
         }
 
-        if(strlen($author) >= GuestbookEntry::MAX_AUTHOR_LENGTH){
+        if(strlen($author->getDisplayName()) >= GuestbookEntry::MAX_AUTHOR_LENGTH){
             throw new \DomainException(sprintf('Author cannot have more than %s characters.', GuestbookEntry::MAX_AUTHOR_LENGTH));
         }
 

@@ -13,12 +13,13 @@ class DoctrineGuestbookEntryRepository implements GuestbookEntryRepositoryInterf
 
     public function __construct(private EntityManagerInterface $entityManager)
     {
-        $this->repository = $entityManager->getRepository(GuestbookEntry::class);
+        $this->repository = $entityManager->getRepository(DoctrineGuestbookEntry::class);
     }
 
     public function save(GuestbookEntry $entry): void
     {
-        $this->entityManager->persist($entry);
+        $doctrineEntry = DoctrineGuestbookEntry::fromDomain($entry);
+        $this->entityManager->persist($doctrineEntry);
         $this->entityManager->flush();
     }
 
@@ -29,7 +30,7 @@ class DoctrineGuestbookEntryRepository implements GuestbookEntryRepositoryInterf
     {
         $query = $this->entityManager->createQueryBuilder()
             ->select('e')
-            ->from(GuestbookEntry::class, 'e')
+            ->from(DoctrineGuestbookEntry::class, 'e')
             ->orderBy('e.createdAt', 'DESC')
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
@@ -42,7 +43,7 @@ class DoctrineGuestbookEntryRepository implements GuestbookEntryRepositoryInterf
     {
         $query = $this->entityManager->createQueryBuilder()
             ->select('count(e.id)')
-            ->from(GuestbookEntry::class, 'e')
+            ->from(DoctrineGuestbookEntry::class, 'e')
             ->getQuery();
 
         return $query->getSingleScalarResult();
@@ -50,6 +51,6 @@ class DoctrineGuestbookEntryRepository implements GuestbookEntryRepositoryInterf
 
     public function findById(string $id): ?GuestbookEntry
     {
-        return $this->repository->find($id);
+        return $this->repository->find($id)?->toDomain();
     }
 }

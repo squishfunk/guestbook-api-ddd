@@ -2,6 +2,10 @@ guestbook_entry_controllers:
     resource: ../../src/GuestbookEntry/UI/Controller/
     type: attribute
 
+user_controllers:
+    resource: ../../src/User/UI/Controller/
+    type: attribute
+
 kernel:
     resource: App\Kernel
     type: attribute
