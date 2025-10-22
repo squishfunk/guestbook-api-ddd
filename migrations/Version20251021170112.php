@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20251021084439 extends AbstractMigration
+final class Version20251021170112 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -22,6 +22,10 @@ final class Version20251021084439 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql('CREATE TABLE guestbook_entry (id VARCHAR(36) NOT NULL, author_name VARCHAR(64) NOT NULL, author_email VARCHAR(100) DEFAULT NULL, user_id VARCHAR(36) DEFAULT NULL, message CLOB NOT NULL, created_at DATETIME NOT NULL --(DC2Type:datetime_immutable)
         , PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE users (id VARCHAR(36) NOT NULL, name VARCHAR(100) NOT NULL, email VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL, created_at DATETIME NOT NULL --(DC2Type:datetime_immutable)
+        , updated_at DATETIME NOT NULL --(DC2Type:datetime_immutable)
+        , PRIMARY KEY(id))');
+        $this->addSql('CREATE UNIQUE INDEX UNIQ_1483A5E9E7927C74 ON users (email)');
         $this->addSql('CREATE TABLE messenger_messages (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, body CLOB NOT NULL, headers CLOB NOT NULL, queue_name VARCHAR(190) NOT NULL, created_at DATETIME NOT NULL --(DC2Type:datetime_immutable)
         , available_at DATETIME NOT NULL --(DC2Type:datetime_immutable)
         , delivered_at DATETIME DEFAULT NULL --(DC2Type:datetime_immutable)
@@ -35,6 +39,7 @@ final class Version20251021084439 extends AbstractMigration
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('DROP TABLE guestbook_entry');
+        $this->addSql('DROP TABLE users');
         $this->addSql('DROP TABLE messenger_messages');
     }
 }
