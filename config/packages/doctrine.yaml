@@ -23,6 +23,11 @@ doctrine:
                 type: attribute
                 dir: '%kernel.project_dir%/src/GuestbookEntry/Infrastructure/Persistence'
                 prefix: 'App\GuestbookEntry\Infrastructure\Persistence'
+            User:
+                is_bundle: false
+                type: attribute
+                dir: '%kernel.project_dir%/src/User/Infrastructure/Persistence'
+                prefix: 'App\User\Infrastructure\Persistence'
         controller_resolver:
             auto_mapping: false
 
