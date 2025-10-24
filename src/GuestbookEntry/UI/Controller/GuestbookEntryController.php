@@ -23,9 +23,6 @@ final class GuestbookEntryController extends AbstractController
     #[Route('', name: 'create', methods: ['POST'])]
     public function create(Request $request, CreateGuestbookEntryHandler $createGuestbookEntryHandler): JsonResponse
     {
-        if ('json' !== $request->getContentTypeFormat()) {
-            throw new BadRequestException('Unsupported content format');
-        }
 
         $command = $this->serializer->deserialize($request->getContent(), CreateGuestbookEntryCommand::class, 'json');
 

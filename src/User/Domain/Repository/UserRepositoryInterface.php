@@ -12,6 +12,7 @@ interface UserRepositoryInterface
     public function findByEmail(Email $email): ?User;
     public function findAllPaginated(int $page, int $limit): array;
     public function save(User $user): void;
+    public function update(User $user): void;
     public function delete(User $user): void;
     public function countAll(): int;
     public function existsByEmail(Email $email): bool;

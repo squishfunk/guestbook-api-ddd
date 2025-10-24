@@ -11,11 +11,13 @@ use App\User\Application\Handler\DeleteUserHandler;
 use App\User\Application\Handler\GetUserHandler;
 use App\User\Application\Handler\GetUsersHandler;
 use App\User\Application\Handler\UpdateUserHandler;
+use App\User\Application\ReadModel\UserView;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route('/user', name: 'user')]
@@ -25,35 +27,8 @@ final class UserController extends AbstractController
         private SerializerInterface $serializer,
     ) {}
 
-    #[Route('', name: 'create', methods: ['POST'])]
-    public function create(Request $request, CreateUserHandler $createUserHandler): JsonResponse
-    {
-        if ('json' !== $request->getContentTypeFormat()) {
-            throw new BadRequestException('Unsupported content format');
-        }
-
-        $command = $this->serializer->deserialize($request->getContent(), CreateUserCommand::class, 'json');
-        $userView = $createUserHandler->__invoke($command);
-
-        return new JsonResponse([
-            'success' => true,
-            'user' => $userView
-        ], 201);
-    }
-
-    #[Route('/{id}', name: 'get', methods: ['GET'])]
-    public function get(string $id, GetUserHandler $getUserHandler): JsonResponse
-    {
-        $command = new GetUserCommand($id);
-        $userView = $getUserHandler->__invoke($command);
-
-        return new JsonResponse([
-            'success' => true,
-            'user' => $userView
-        ]);
-    }
-
     #[Route('', name: 'list', methods: ['GET'])]
+    #[IsGranted('ROLE_ADMIN')]
     public function list(Request $request, GetUsersHandler $getUsersHandler): JsonResponse
     {
         $page = (int) $request->query->get('page', 1);
@@ -64,16 +39,61 @@ final class UserController extends AbstractController
         return new JsonResponse($result);
     }
 
-    #[Route('/{id}', name: 'update', methods: ['PUT', 'PATCH'])]
-    public function update(string $id, Request $request, UpdateUserHandler $updateUserHandler): JsonResponse
+    #[Route('/', name: 'delete', methods: ['DELETE'])]
+    public function delete(DeleteUserHandler $deleteUserHandler): JsonResponse
     {
-        if ('json' !== $request->getContentTypeFormat()) {
-            throw new BadRequestException('Unsupported content format');
+        $user = $this->getUser();
+        $command = new DeleteUserCommand($user->id()->value());
+        $deleteUserHandler->__invoke($command);
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'User deleted successfully'
+        ]);
+    }
+
+    #[Route('/me', name: 'me', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function me(): JsonResponse
+    {
+        $user = $this->getUser();
+
+        if (!$user) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Not authenticated'
+            ], 401);
+        }
+
+        return new JsonResponse([
+            'success' => true,
+            'user' => new UserView(
+                $user->id()->value(),
+                $user->name(),
+                $user->email()->value(),
+                $user->createdAt()->format('Y-m-d H:i:s'),
+                $user->updatedAt()->format('Y-m-d H:i:s')
+            )
+        ]);
+    }
+
+    #[Route('/me', name: 'update', methods: ['PUT', 'PATCH'])]
+    #[IsGranted('ROLE_USER')]
+    public function update(Request $request, UpdateUserHandler $updateUserHandler): JsonResponse
+    {
+
+        $user = $this->getUser();
+
+        if (!$user) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Not authenticated'
+            ], 401);
         }
 
         $data = json_decode($request->getContent(), true);
         $command = new UpdateUserCommand(
-            $id,
+            $user->id()->value(),
             $data['name'] ?? null,
             $data['email'] ?? null,
             $data['password'] ?? null
@@ -84,18 +104,6 @@ final class UserController extends AbstractController
         return new JsonResponse([
             'success' => true,
             'user' => $userView
-        ]);
-    }
-
-    #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
-    public function delete(string $id, DeleteUserHandler $deleteUserHandler): JsonResponse
-    {
-        $command = new DeleteUserCommand($id);
-        $deleteUserHandler->__invoke($command);
-
-        return new JsonResponse([
-            'success' => true,
-            'message' => 'User deleted successfully'
         ]);
     }
 }

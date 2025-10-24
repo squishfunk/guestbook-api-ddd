@@ -7,18 +7,15 @@ class Password
     const MIN_PASSWORD_LENGTH = 6;
     private string $hashedValue;
 
-    public function __construct(?string $plainPassword)
+    public function __construct(string $plainPassword)
     {
-        if($plainPassword){
-            $this->validatePassword($plainPassword);
-        }
-
+        $this->validatePassword($plainPassword);
         $this->hashedValue = password_hash($plainPassword, PASSWORD_DEFAULT);
     }
 
     public static function fromHash(string $hashedPassword): self
     {
-        $instance = new self(null);
+        $instance = new self('!Dummy_1');
         $instance->hashedValue = $hashedPassword;
         return $instance;
     }

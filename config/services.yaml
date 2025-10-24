@@ -19,5 +19,18 @@ services:
     App\GuestbookEntry\UI\Controller\:
         resource: '../src/GuestbookEntry/UI/Controller'
 
+    # Security services
+    App\User\Infrastructure\Security\AppUserProvider:
+        arguments:
+            $userRepository: '@App\User\Domain\Repository\UserRepositoryInterface'
+
+    # Voters
+    App\User\Infrastructure\Security\UserVoter:
+        tags: ['security.voter']
+
+    # test Fixtures
+    App\Tests\DataFixtures\UserFixtures:
+        tags: [ 'doctrine.fixture.orm' ]
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

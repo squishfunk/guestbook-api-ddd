@@ -6,9 +6,11 @@ use App\User\Domain\ValueObject\Email;
 use App\User\Domain\ValueObject\Password;
 use App\User\Domain\ValueObject\UserId;
 use DateTimeImmutable;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Uid\Uuid;
 
-class User
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     const MAX_NAME_LENGTH = 100;
 
@@ -18,6 +20,7 @@ class User
     private Password $password;
     private DateTimeImmutable $createdAt;
     private DateTimeImmutable $updatedAt;
+    private array $roles = ['ROLE_USER'];
 
     public function __construct(
         string $name,
@@ -96,5 +99,38 @@ class User
         }
 
         $this->name = $name;
+    }
+
+    // Symfony Security Interface methods
+    public function getUserIdentifier(): string
+    {
+        return $this->email->value();
+    }
+
+    public function getRoles(): array
+    {
+        return $this->roles;
+    }
+
+    public function eraseCredentials(): void
+    {
+        // If you store any temporary, sensitive data on the user, clear it here
+    }
+
+    public function getPassword(): ?string
+    {
+        return $this->password->hash();
+    }
+
+    public function addRole(string $role): void
+    {
+        if (!in_array($role, $this->roles)) {
+            $this->roles[] = $role;
+        }
+    }
+
+    public function removeRole(string $role): void
+    {
+        $this->roles = array_filter($this->roles, fn($r) => $r !== $role);
     }
 }

@@ -40,7 +40,7 @@ class UpdateUserHandler
             $user->updatePassword(new Password($command->password));
         }
 
-        $this->repository->save($user);
+        $this->repository->update($user);
 
         return new UserView(
             $user->id()->value(),

@@ -21,7 +21,22 @@ class DoctrineUserRepository implements UserRepositoryInterface
     public function save(User $user): void
     {
         $doctrineUser = DoctrineUser::fromDomain($user);
+
         $this->entityManager->persist($doctrineUser);
+        $this->entityManager->flush();
+    }
+
+    public function update(User $user): void
+    {
+        $doctrineUser = $this->repository->find($user->id()->value());
+
+        if (!$doctrineUser) {
+            throw new \RuntimeException('User not found');
+        }
+
+        $doctrineUser->setName($user->name());
+        $doctrineUser->setEmail($user->email());
+
         $this->entityManager->flush();
     }
 
