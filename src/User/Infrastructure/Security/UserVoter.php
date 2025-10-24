@@ -43,11 +43,11 @@ class UserVoter extends Voter
         if ($subject instanceof User) {
             return $subject->id()->value();
         }
-        
+
         if ($subject instanceof UserId) {
             return $subject->value();
         }
-        
+
         if (is_string($subject)) {
             return $subject;
         }
@@ -55,5 +55,6 @@ class UserVoter extends Voter
         return null;
     }
 }
+
 
 

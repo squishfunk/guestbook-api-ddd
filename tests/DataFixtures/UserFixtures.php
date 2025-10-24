@@ -13,6 +13,7 @@ class UserFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
+        // Regular user
         $user = new User(
             'Damian',
             new Email('test@gmail.com'),
@@ -22,6 +23,18 @@ class UserFixtures extends Fixture
         $userDoctrine = DoctrineUser::fromDomain($user);
 
         $manager->persist($userDoctrine);
+
+        // Admin user
+        $adminUser = new User(
+            'Admin User',
+            new Email('admin@gmail.com'),
+            new Password('AdminPass123')
+        );
+        $adminUser->addRole('ROLE_ADMIN');
+
+        $adminUserDoctrine = DoctrineUser::fromDomain($adminUser);
+        $manager->persist($adminUserDoctrine);
+
         $manager->flush();
     }
 }
