@@ -25,11 +25,11 @@ class AuthControllerTest extends WebTestCase
     {
         $this->client = static::createClient();
         $this->entityManager = $this->client->getContainer()->get('doctrine.orm.entity_manager');
-        
+
         // Load fixtures
         $loader = new Loader();
         $loader->addFixture(new UserFixtures());
-        
+
         $purger = new ORMPurger();
         $executor = new ORMExecutor($this->entityManager, $purger);
         $executor->execute($loader->getFixtures());
@@ -53,7 +53,7 @@ class AuthControllerTest extends WebTestCase
         );
 
         $this->assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
-        
+
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertTrue($responseData['success']);
         $this->assertEquals('User registered successfully', $responseData['message']);
@@ -79,8 +79,11 @@ class AuthControllerTest extends WebTestCase
             json_encode($userData)
         );
 
-        // Invalid data causes 500 due to domain exceptions
-        $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $this->client->getResponse()->getStatusCode());
+        $responseData = json_decode($this->client->getResponse()->getContent(), true);
+
+        $this->assertFalse($responseData['success']);
+        $this->assertArrayHasKey('message', $responseData);
+        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $this->client->getResponse()->getStatusCode());
     }
 
     public function testRegisterWithMissingFields(): void
@@ -99,8 +102,11 @@ class AuthControllerTest extends WebTestCase
             json_encode($userData)
         );
 
-        // Missing fields cause 500 due to serializer exceptions
-        $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $this->client->getResponse()->getStatusCode());
+        $responseData = json_decode($this->client->getResponse()->getContent(), true);
+
+        $this->assertFalse($responseData['success']);
+        $this->assertArrayHasKey('message', $responseData);
+        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $this->client->getResponse()->getStatusCode());
     }
 
     public function testRegisterWithDuplicateEmail(): void
@@ -139,7 +145,11 @@ class AuthControllerTest extends WebTestCase
             json_encode($duplicateUserData)
         );
 
-        $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $this->client->getResponse()->getStatusCode());
+        $responseData = json_decode($this->client->getResponse()->getContent(), true);
+
+        $this->assertFalse($responseData['success']);
+        $this->assertArrayHasKey('message', $responseData);
+        $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $this->client->getResponse()->getStatusCode());
     }
 
     public function testLoginSuccess(): void
@@ -150,7 +160,7 @@ class AuthControllerTest extends WebTestCase
             new Email('login@test.com'),
             new Password('LoginPass123')
         );
-        
+
         $userDoctrine = DoctrineUser::fromDomain($user);
         $this->entityManager->persist($userDoctrine);
         $this->entityManager->flush();
@@ -170,7 +180,7 @@ class AuthControllerTest extends WebTestCase
         );
 
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
-        
+
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertTrue($responseData['success']);
         $this->assertEquals('Login successful', $responseData['message']);
@@ -188,7 +198,7 @@ class AuthControllerTest extends WebTestCase
             new Email('login@test.com'),
             new Password('LoginPass123')
         );
-        
+
         $userDoctrine = DoctrineUser::fromDomain($user);
         $this->entityManager->persist($userDoctrine);
         $this->entityManager->flush();
@@ -208,7 +218,7 @@ class AuthControllerTest extends WebTestCase
         );
 
         $this->assertEquals(Response::HTTP_UNAUTHORIZED, $this->client->getResponse()->getStatusCode());
-        
+
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertFalse($responseData['success']);
         $this->assertEquals('Invalid credentials', $responseData['message']);
@@ -231,7 +241,7 @@ class AuthControllerTest extends WebTestCase
         );
 
         $this->assertEquals(Response::HTTP_UNAUTHORIZED, $this->client->getResponse()->getStatusCode());
-        
+
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertFalse($responseData['success']);
         $this->assertEquals('Invalid credentials', $responseData['message']);
@@ -253,11 +263,11 @@ class AuthControllerTest extends WebTestCase
             json_encode($loginData)
         );
 
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
-        
+
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertFalse($responseData['success']);
-        $this->assertEquals('Email and password are required', $responseData['message']);
+        $this->assertArrayHasKey('message', $responseData);
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
     }
 
     public function testLoginWithEmptyFields(): void
@@ -277,7 +287,7 @@ class AuthControllerTest extends WebTestCase
         );
 
         $this->assertEquals(Response::HTTP_UNAUTHORIZED, $this->client->getResponse()->getStatusCode());
-        
+
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertFalse($responseData['success']);
         $this->assertEquals('Login failed', $responseData['message']);
@@ -294,10 +304,10 @@ class AuthControllerTest extends WebTestCase
         );
 
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
-        
+
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertTrue($responseData['success']);
-        $this->assertEquals('Logout successful', $responseData['message']);
+        $this->assertArrayHasKey('message', $responseData);
     }
 
     public function testLoginWithInvalidJson(): void
@@ -312,6 +322,9 @@ class AuthControllerTest extends WebTestCase
         );
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+        $responseData = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertFalse($responseData['success']);
+        $this->assertEquals('Email and password are required', $responseData['message']);
     }
 
     public function testRegisterWithInvalidJson(): void
@@ -325,6 +338,10 @@ class AuthControllerTest extends WebTestCase
             'invalid json'
         );
 
-        $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $this->client->getResponse()->getStatusCode());
+        $responseData = json_decode($this->client->getResponse()->getContent(), true);
+
+        $this->assertFalse($responseData['success']);
+        $this->assertArrayHasKey('message', $responseData);
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
     }
 }

@@ -8,26 +8,45 @@ use App\User\Application\ReadModel\UserView;
 use App\User\Domain\Repository\UserRepositoryInterface;
 use App\User\Domain\ValueObject\Email;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use PharIo\Manifest\InvalidEmailException;
+use PHPUnit\Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/auth', name: 'auth')]
 final class AuthController extends AbstractController
 {
     public function __construct(
-        private SerializerInterface $serializer,
         private UserRepositoryInterface $userRepository,
-        private JWTTokenManagerInterface $jwtManager
+        private JWTTokenManagerInterface $jwtManager,
+        private ValidatorInterface $validator
     ) {}
 
     #[Route('/register', name: 'register', methods: ['POST'])]
     public function register(Request $request, CreateUserHandler $createUserHandler): JsonResponse
     {
-        $command = $this->serializer->deserialize($request->getContent(), CreateUserCommand::class, 'json');
+        $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+        $command = new CreateUserCommand(
+            $data['name'] ?? '',
+            $data['email'] ?? '',
+            $data['password'] ?? ''
+        );
+
+        $violations = $this->validator->validate($command);
+        if (count($violations) > 0) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => (string) $violations
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
         $userView = $createUserHandler->__invoke($command);
 
         return new JsonResponse([
@@ -89,6 +108,14 @@ final class AuthController extends AbstractController
             'success' => true,
             'message' => 'Logout successful'
         ]);
+    }
+
+    private function errorResponse(string $message, int $status): JsonResponse
+    {
+        return new JsonResponse([
+            'success' => false,
+            'message' => $message,
+        ], $status);
     }
 }
 
