@@ -16,4 +16,5 @@ interface UserRepositoryInterface
     public function delete(User $user): void;
     public function countAll(): int;
     public function existsByEmail(Email $email): bool;
+    public function findByEmailVerificationToken(string $token): ?User;
 }

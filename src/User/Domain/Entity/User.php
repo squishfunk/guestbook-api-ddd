@@ -2,6 +2,8 @@
 
 namespace App\User\Domain\Entity;
 
+use App\Shared\Domain\Event\EventInterface;
+use App\User\Domain\Event\UserRegisteredEvent;
 use App\User\Domain\ValueObject\Email;
 use App\User\Domain\ValueObject\Password;
 use App\User\Domain\ValueObject\UserId;
@@ -21,6 +23,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private DateTimeImmutable $createdAt;
     private DateTimeImmutable $updatedAt;
     private array $roles = ['ROLE_USER'];
+    private bool $emailVerified = false;
+    private ?string $emailVerificationToken = null;
+
+    private array $events = [];
 
     public function __construct(
         string $name,
@@ -28,7 +34,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         Password $password,
         ?UserId $id = null,
         ?DateTimeImmutable $createdAt = null,
-        ?DateTimeImmutable $updatedAt = null
+        ?DateTimeImmutable $updatedAt = null,
+        bool $emailVerified = false,
+        ?string $emailVerificationToken = null
     ) {
         $this->id = $id ?? new UserId(Uuid::v4());
         $this->setName($name);
@@ -36,6 +44,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->password = $password;
         $this->createdAt = $createdAt ?? new DateTimeImmutable();
         $this->updatedAt = $updatedAt ?? new DateTimeImmutable();
+        $this->emailVerified = $emailVerified;
+        $this->emailVerificationToken = $emailVerificationToken ?? bin2hex(random_bytes(32));
+    }
+
+    static function register(
+        string $name,
+        Email $email,
+        Password $password,
+    ): self {
+        $user = new self(
+            $name,
+            $email,
+            $password
+        );
+
+        $user->record(new UserRegisteredEvent(
+            $user->id()->value(), 
+            $user->name(), 
+            $user->email()->value(),
+            $user->getEmailVerificationToken()
+        ));
+
+        return $user;
     }
 
     public function id(): UserId
@@ -86,6 +117,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->updatedAt = new DateTimeImmutable();
     }
 
+    public function confirmEmail(string $token): void
+    {
+        if ($this->emailVerified) {
+            throw new \DomainException('Email is already verified.');
+        }
+
+        if ($this->emailVerificationToken !== $token) {
+            throw new \DomainException('Invalid verification token.');
+        }
+
+        $this->emailVerified = true;
+        $this->emailVerificationToken = null;
+        $this->updatedAt = new DateTimeImmutable();
+    }
+
     private function setName(string $name): void
     {
         $name = trim($name);
@@ -122,6 +168,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->password->hash();
     }
 
+    public function isEmailVerified(): bool
+    {
+        return $this->emailVerified;
+    }
+
+    public function getEmailVerificationToken(): ?string
+    {
+        return $this->emailVerificationToken;
+    }
+
     public function addRole(string $role): void
     {
         if (!in_array($role, $this->roles)) {
@@ -132,5 +188,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeRole(string $role): void
     {
         $this->roles = array_filter($this->roles, fn($r) => $r !== $role);
+    }
+
+    private function record(EventInterface $event): void
+    {
+        $this->events[] = $event;
+    }
+
+    public function releaseEvents(): array
+    {
+        $events = $this->events;
+        $this->events = [];
+
+        return $events;
     }
 }

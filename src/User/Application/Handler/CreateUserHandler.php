@@ -8,28 +8,30 @@ use App\User\Domain\Entity\User;
 use App\User\Domain\Repository\UserRepositoryInterface;
 use App\User\Domain\ValueObject\Email;
 use App\User\Domain\ValueObject\Password;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class CreateUserHandler
 {
     public function __construct(
-        private UserRepositoryInterface $repository
+        private UserRepositoryInterface $repository,
+        private MessageBusInterface $bus
     ) {}
 
     public function __invoke(CreateUserCommand $command): UserView
     {
         $email = new Email($command->email);
-        
+
         if ($this->repository->existsByEmail($email)) {
             throw new \DomainException('User with this email already exists.');
         }
 
-        $user = new User(
-            $command->name,
-            $email,
-            new Password($command->password)
-        );
+        $user = User::register($command->name, $email, new Password($command->password));
 
         $this->repository->save($user);
+
+        foreach ($user->releaseEvents() as $event) {
+            $this->bus->dispatch($event);
+        }
 
         return new UserView(
             $user->id()->value(),

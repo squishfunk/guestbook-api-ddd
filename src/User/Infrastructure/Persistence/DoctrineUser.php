@@ -32,6 +32,12 @@ class DoctrineUser
     #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $updatedAt;
 
+    #[ORM\Column(type: 'boolean')]
+    private bool $emailVerified = false;
+
+    #[ORM\Column(type: 'string', length: 64, nullable: true)]
+    private ?string $emailVerificationToken = null;
+
     public static function fromDomain(DomainUser $user): self
     {
         $self = new self();
@@ -41,6 +47,8 @@ class DoctrineUser
         $self->password = $user->password()->hash();
         $self->createdAt = $user->createdAt();
         $self->updatedAt = $user->updatedAt();
+        $self->emailVerified = $user->isEmailVerified();
+        $self->emailVerificationToken = $user->getEmailVerificationToken();
 
         return $self;
     }
@@ -53,7 +61,9 @@ class DoctrineUser
             Password::fromHash($this->password),
             new UserId($this->id),
             $this->createdAt,
-            $this->updatedAt
+            $this->updatedAt,
+            $this->emailVerified,
+            $this->emailVerificationToken
         );
     }
 
@@ -117,5 +127,23 @@ class DoctrineUser
         $this->updatedAt = $updatedAt;
     }
 
+    public function isEmailVerified(): bool
+    {
+        return $this->emailVerified;
+    }
 
+    public function setEmailVerified(bool $emailVerified): void
+    {
+        $this->emailVerified = $emailVerified;
+    }
+
+    public function getEmailVerificationToken(): ?string
+    {
+        return $this->emailVerificationToken;
+    }
+
+    public function setEmailVerificationToken(?string $emailVerificationToken): void
+    {
+        $this->emailVerificationToken = $emailVerificationToken;
+    }
 }

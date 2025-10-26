@@ -2,7 +2,9 @@
 
 namespace App\User\UI\Controller;
 
+use App\User\Application\Command\ConfirmEmailCommand;
 use App\User\Application\Command\CreateUserCommand;
+use App\User\Application\Handler\ConfirmEmailHandler;
 use App\User\Application\Handler\CreateUserHandler;
 use App\User\Application\ReadModel\UserView;
 use App\User\Domain\Repository\UserRepositoryInterface;
@@ -51,7 +53,7 @@ final class AuthController extends AbstractController
 
         return new JsonResponse([
             'success' => true,
-            'message' => 'User registered successfully',
+            'message' => 'User registered successfully, please confirm your email address.',
             'user' => $userView
         ], 201);
     }
@@ -108,6 +110,27 @@ final class AuthController extends AbstractController
             'success' => true,
             'message' => 'Logout successful'
         ]);
+    }
+
+    #[Route('/verify-email', name: 'verify_email', methods: ['POST'])]
+    public function verifyEmail(Request $request, ConfirmEmailHandler $confirmEmailHandler): JsonResponse
+    {
+        $token = $request->query->get('token');
+
+        if (!isset($token)) {
+            return new JsonResponse(['error' => 'Token is required'], 400);
+        }
+
+        try {
+            $command = new ConfirmEmailCommand($token);
+            $confirmEmailHandler($command);
+
+            return new JsonResponse(['message' => 'Email verified successfully']);
+        } catch (\DomainException $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 400);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'An error occurred'], 500);
+        }
     }
 
     private function errorResponse(string $message, int $status): JsonResponse

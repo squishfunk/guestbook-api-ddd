@@ -97,4 +97,10 @@ class DoctrineUserRepository implements UserRepositoryInterface
 
         return $query->getSingleScalarResult();
     }
+
+    public function findByEmailVerificationToken(string $token): ?User
+    {
+        $doctrineUser = $this->repository->findOneBy(['emailVerificationToken' => $token]);
+        return $doctrineUser ? $doctrineUser->toDomain() : null;
+    }
 }
