@@ -112,7 +112,7 @@ final class AuthController extends AbstractController
         ]);
     }
 
-    #[Route('/verify-email', name: 'verify_email', methods: ['POST'])]
+    #[Route('/verify-email', name: 'verify_email', methods: ['GET'])]
     public function verifyEmail(Request $request, ConfirmEmailHandler $confirmEmailHandler): JsonResponse
     {
         $token = $request->query->get('token');

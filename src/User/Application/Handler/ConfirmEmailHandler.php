@@ -16,12 +16,12 @@ class ConfirmEmailHandler
     public function __invoke(ConfirmEmailCommand $command): void
     {
         $user = $this->repository->findByEmailVerificationToken($command->token);
-        
+
         if (!$user) {
             throw new \DomainException('Invalid verification token.');
         }
 
         $user->confirmEmail($command->token);
-        $this->repository->save($user);
+        $this->repository->update($user);
     }
 }
