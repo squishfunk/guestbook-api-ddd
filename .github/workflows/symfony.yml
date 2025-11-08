@@ -25,8 +25,10 @@ jobs:
       with:
         php-version: '8.4'
     - uses: actions/checkout@v4
+
     - name: Copy .env.test.local
-      run: php -r "file_exists('.env.test.local') || copy('.env.test', '.env.test.local');"
+      run: cp .env.test .env
+
     - name: Cache Composer packages
       id: composer-cache
       uses: actions/cache@v3
@@ -35,12 +37,20 @@ jobs:
         key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
           ${{ runner.os }}-php-
+
     - name: Install Dependencies
       run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
     - name: Create Database
       run: |
         mkdir -p data
         touch data/database.sqlite
+
+    - name: Generate JWT keys
+      run: php bin/console lexik:jwt:generate-keypair --skip-if-exists
+      env:
+          JWT_PASSPHRASE: 'test_passphrase_for_ci'
+
     - name: Execute tests (Unit and Feature tests) via PHPUnit
       env:
         DATABASE_URL: sqlite:///%kernel.project_dir%/data/database.sqlite
