@@ -36,6 +36,8 @@ class DoctrineUserRepository implements UserRepositoryInterface
 
         $doctrineUser->setName($user->name());
         $doctrineUser->setEmail($user->email());
+        $doctrineUser->setEmailVerified($user->isEmailVerified());
+        $doctrineUser->setEmailVerificationToken($user->getEmailVerificationToken());
 
         $this->entityManager->flush();
     }
