@@ -7,6 +7,9 @@ use App\User\Domain\ValueObject\UserId;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
+/**
+ * @extends Voter<string, User>
+ */
 class UserVoter extends Voter
 {
     public const VIEW = 'view';

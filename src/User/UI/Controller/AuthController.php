@@ -132,14 +132,6 @@ final class AuthController extends AbstractController
             return new JsonResponse(['error' => 'An error occurred'], 500);
         }
     }
-
-    private function errorResponse(string $message, int $status): JsonResponse
-    {
-        return new JsonResponse([
-            'success' => false,
-            'message' => $message,
-        ], $status);
-    }
 }
 
 

@@ -2,6 +2,7 @@
 
 namespace App\GuestbookEntry\Application\Handler;
 
+use App\GuestbookEntry\Application\ReadModel\GuestbookEntriesView;
 use App\GuestbookEntry\Application\ReadModel\GuestbookEntryView;
 use App\GuestbookEntry\Domain\Repository\GuestbookEntryRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -14,14 +15,12 @@ class GetGuestbookEntriesHandler
     )
     {}
 
-    public function __invoke(int $page, int $limit): iterable
+    public function __invoke(int $page, int $limit): GuestbookEntriesView
     {
         $entries = $this->repository->findAllPaginated($page, $limit);
 
-
         $entriesCollectionResponse = [];
-        foreach($entries as $doctrineEntry) {
-            $entry = $doctrineEntry->toDomain();
+        foreach($entries as $entry) {
             $entriesCollectionResponse[] = new GuestbookEntryView(
                 $entry->id(),
                 $entry->author()->getDisplayName(),
@@ -32,11 +31,11 @@ class GetGuestbookEntriesHandler
 
         $total = $this->repository->countAll();
 
-        return [
-            'total' => $total,
-            'page' => $page,
-            'limit' => $limit,
-            'entries' => $entriesCollectionResponse
-        ];
+        return new GuestbookEntriesView(
+            $total,
+            $page,
+            $limit,
+            $entriesCollectionResponse
+        );
     }
 }

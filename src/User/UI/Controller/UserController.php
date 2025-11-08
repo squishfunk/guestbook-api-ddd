@@ -2,37 +2,31 @@
 
 namespace App\User\UI\Controller;
 
-use App\User\Application\Command\CreateUserCommand;
 use App\User\Application\Command\DeleteUserCommand;
-use App\User\Application\Command\GetUserCommand;
 use App\User\Application\Command\UpdateUserCommand;
-use App\User\Application\Handler\CreateUserHandler;
 use App\User\Application\Handler\DeleteUserHandler;
-use App\User\Application\Handler\GetUserHandler;
 use App\User\Application\Handler\GetUsersHandler;
 use App\User\Application\Handler\UpdateUserHandler;
 use App\User\Application\ReadModel\UserView;
+use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route('/user', name: 'user')]
 final class UserController extends AbstractController
 {
     public function __construct(
-        private SerializerInterface $serializer,
     ) {}
 
     #[Route('', name: 'list', methods: ['GET'])]
     #[IsGranted('ROLE_ADMIN')]
     public function list(Request $request, GetUsersHandler $getUsersHandler): JsonResponse
     {
-        $page = (int) $request->query->get('page', 1);
-        $limit = (int) $request->query->get('limit', 10);
+        $page = (int) $request->query->get('page', '1');
+        $limit = (int) $request->query->get('limit', '10');
 
         $result = $getUsersHandler->__invoke($page, $limit);
 
@@ -42,7 +36,7 @@ final class UserController extends AbstractController
     #[Route('/', name: 'delete', methods: ['DELETE'])]
     public function delete(DeleteUserHandler $deleteUserHandler): JsonResponse
     {
-        $user = $this->getUser();
+        $user = $this->getAuthenticatedUser();
         $command = new DeleteUserCommand($user->id()->value());
         $deleteUserHandler->__invoke($command);
 
@@ -56,14 +50,7 @@ final class UserController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function me(): JsonResponse
     {
-        $user = $this->getUser();
-
-        if (!$user) {
-            return new JsonResponse([
-                'success' => false,
-                'message' => 'Not authenticated'
-            ], 401);
-        }
+        $user = $this->getAuthenticatedUser();
 
         return new JsonResponse([
             'success' => true,
@@ -82,14 +69,7 @@ final class UserController extends AbstractController
     public function update(Request $request, UpdateUserHandler $updateUserHandler): JsonResponse
     {
 
-        $user = $this->getUser();
-
-        if (!$user) {
-            return new JsonResponse([
-                'success' => false,
-                'message' => 'Not authenticated'
-            ], 401);
-        }
+        $user = $this->getAuthenticatedUser();
 
         $data = json_decode($request->getContent(), true);
         $command = new UpdateUserCommand(
@@ -105,5 +85,19 @@ final class UserController extends AbstractController
             'success' => true,
             'user' => $userView
         ]);
+    }
+
+    /**
+     * @return User
+     */
+    private function getAuthenticatedUser(): User
+    {
+        $user = $this->getUser();
+
+        if (!$user instanceof User) {
+            throw new \RuntimeException('User is not authenticated or invalid user type.');
+        }
+
+        return $user;
     }
 }

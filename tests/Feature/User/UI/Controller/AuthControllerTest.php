@@ -13,13 +13,14 @@ use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Loader;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthControllerTest extends WebTestCase
 {
     private EntityManagerInterface $entityManager;
-    private $client;
+    private KernelBrowser $client;
 
     protected function setUp(): void
     {
@@ -56,7 +57,7 @@ class AuthControllerTest extends WebTestCase
 
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertTrue($responseData['success']);
-        $this->assertEquals('User registered successfully', $responseData['message']);
+        $this->assertEquals('User registered successfully, please confirm your email address.', $responseData['message']);
         $this->assertArrayHasKey('user', $responseData);
         $this->assertEquals('New User', $responseData['user']['name']);
         $this->assertEquals('newuser@test.com', $responseData['user']['email']);

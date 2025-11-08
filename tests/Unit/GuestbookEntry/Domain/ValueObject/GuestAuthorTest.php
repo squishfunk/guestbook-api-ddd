@@ -23,7 +23,7 @@ class GuestAuthorTest extends TestCase
         new GuestAuthor('');
     }
 
-    public function testEmailCanBeNull()
+    public function testEmailCanBeNull(): void
     {
         $author = new GuestAuthor('Jane Doe');
         $this->assertNull($author->getEmail());

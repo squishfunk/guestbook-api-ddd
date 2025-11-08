@@ -54,7 +54,7 @@ class GuestbookEntry
         return $this->id;
     }
 
-    private function setMessage(string $message)
+    private function setMessage(string $message): void
     {
         if(strlen($message) >= GuestbookEntry::MAX_MESSAGE_LENGTH){
             throw new \DomainException(sprintf('Message cannot be more than %s characters.', GuestbookEntry::MAX_MESSAGE_LENGTH));
@@ -67,7 +67,7 @@ class GuestbookEntry
         $this->message = $message;
     }
 
-    private function setAuthor(AuthorInterface $author)
+    private function setAuthor(AuthorInterface $author): void
     {
         if (trim($author->getDisplayName()) === '') {
             throw new \DomainException('Author cannot be empty.');

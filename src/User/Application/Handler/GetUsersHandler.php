@@ -2,6 +2,7 @@
 
 namespace App\User\Application\Handler;
 
+use App\User\Application\ReadModel\UsersView;
 use App\User\Application\ReadModel\UserView;
 use App\User\Domain\Repository\UserRepositoryInterface;
 
@@ -11,7 +12,7 @@ class GetUsersHandler
         private UserRepositoryInterface $repository
     ) {}
 
-    public function __invoke(int $page, int $limit): array
+    public function __invoke(int $page, int $limit): UsersView
     {
         $users = $this->repository->findAllPaginated($page, $limit);
         $total = $this->repository->countAll();
@@ -27,11 +28,11 @@ class GetUsersHandler
             );
         }
 
-        return [
-            'total' => $total,
-            'page' => $page,
-            'limit' => $limit,
-            'users' => $usersCollectionResponse
-        ];
+        return new UsersView(
+            $total,
+            $page,
+            $limit,
+            $usersCollectionResponse
+        );
     }
 }

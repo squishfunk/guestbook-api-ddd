@@ -10,6 +10,10 @@ interface UserRepositoryInterface
 {
     public function findById(UserId $id): ?User;
     public function findByEmail(Email $email): ?User;
+
+    /**
+     * @return list<User>
+     */
     public function findAllPaginated(int $page, int $limit): array;
     public function save(User $user): void;
     public function update(User $user): void;

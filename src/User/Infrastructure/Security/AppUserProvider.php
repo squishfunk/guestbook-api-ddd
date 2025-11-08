@@ -2,12 +2,16 @@
 
 namespace App\User\Infrastructure\Security;
 
+use App\User\Domain\Entity\User;
 use App\User\Domain\Repository\UserRepositoryInterface;
 use App\User\Domain\ValueObject\Email;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
+/**
+ * @implements UserProviderInterface<User>
+ */
 class AppUserProvider implements UserProviderInterface
 {
     public function __construct(
@@ -31,7 +35,7 @@ class AppUserProvider implements UserProviderInterface
     public function loadUserByIdentifier(string $identifier): UserInterface
     {
         $user = $this->userRepository->findByEmail(new Email($identifier));
-        
+
         if (!$user) {
             throw new UserNotFoundException(sprintf('User with email "%s" not found.', $identifier));
         }

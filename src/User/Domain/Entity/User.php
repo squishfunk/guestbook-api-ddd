@@ -22,10 +22,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Password $password;
     private DateTimeImmutable $createdAt;
     private DateTimeImmutable $updatedAt;
+
+    /** @var list<string> */
     private array $roles = ['ROLE_USER'];
     private bool $emailVerified = false;
     private ?string $emailVerificationToken = null;
 
+    /** @var list<EventInterface> */
     private array $events = [];
 
     public function __construct(
@@ -60,8 +63,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         );
 
         $user->record(new UserRegisteredEvent(
-            $user->id()->value(), 
-            $user->name(), 
+            $user->id()->value(),
+            $user->name(),
             $user->email()->value(),
             $user->getEmailVerificationToken()
         ));
@@ -195,6 +198,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->events[] = $event;
     }
 
+    /**
+     * @return list<EventInterface>
+     */
     public function releaseEvents(): array
     {
         $events = $this->events;

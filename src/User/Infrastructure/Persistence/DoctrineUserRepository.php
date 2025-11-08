@@ -11,6 +11,9 @@ use Doctrine\Persistence\ObjectRepository;
 
 class DoctrineUserRepository implements UserRepositoryInterface
 {
+    /**
+     * @var ObjectRepository<DoctrineUser>
+     */
     private ObjectRepository $repository;
 
     public function __construct(private EntityManagerInterface $entityManager)

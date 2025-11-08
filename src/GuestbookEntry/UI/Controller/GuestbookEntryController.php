@@ -37,8 +37,8 @@ final class GuestbookEntryController extends AbstractController
     #[Route('', name: 'list', methods: ['GET'])]
     public function list(Request $request, GetGuestbookEntriesHandler $getGuestbookEntriesHandler): JsonResponse
     {
-        $page = (int) $request->query->get('page', 1);
-        $limit = (int) $request->query->get('limit', 10);
+        $page = (int) $request->query->get('page', '1');
+        $limit = (int) $request->query->get('limit', '10');
 
         $result = $getGuestbookEntriesHandler->__invoke($page, $limit);
 

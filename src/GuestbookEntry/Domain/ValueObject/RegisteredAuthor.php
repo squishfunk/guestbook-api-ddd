@@ -18,7 +18,7 @@ class RegisteredAuthor implements AuthorInterface
         return $this->userId;
     }
 
-    private function setUserId(string $userId)
+    private function setUserId(string $userId): void
     {
         if(strlen($userId) < 1){
             throw new \DomainException('User ID cannot be empty.');

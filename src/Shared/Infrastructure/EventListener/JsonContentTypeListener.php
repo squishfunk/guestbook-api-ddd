@@ -28,16 +28,4 @@ class JsonContentTypeListener
         }
     }
 
-    private function isApiEndpoint(string $path): bool
-    {
-        $apiPaths = ['/auth', '/user', '/guestbook'];
-
-        foreach ($apiPaths as $apiPath) {
-            if (str_starts_with($path, $apiPath)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }

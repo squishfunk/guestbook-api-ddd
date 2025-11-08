@@ -9,6 +9,9 @@ use Doctrine\Persistence\ObjectRepository;
 
 class DoctrineGuestbookEntryRepository implements GuestbookEntryRepositoryInterface
 {
+    /**
+     * @var ObjectRepository<DoctrineGuestbookEntry>
+     */
     private ObjectRepository $repository;
 
     public function __construct(private EntityManagerInterface $entityManager)
@@ -24,9 +27,9 @@ class DoctrineGuestbookEntryRepository implements GuestbookEntryRepositoryInterf
     }
 
     /**
-     * @return GuestbookEntry[]
+     * @return list<GuestbookEntry>
      */
-    public function findAllPaginated(int $page, $limit): array
+    public function findAllPaginated(int $page, int $limit): array
     {
         $query = $this->entityManager->createQueryBuilder()
             ->select('e')
@@ -36,7 +39,12 @@ class DoctrineGuestbookEntryRepository implements GuestbookEntryRepositoryInterf
             ->setMaxResults($limit)
             ->getQuery();
 
-        return $query->getResult();
+        $doctrineEntries = $query->getResult();
+
+        return array_map(
+        fn(DoctrineGuestbookEntry $doctrineEntry) => $doctrineEntry->toDomain(),
+        $doctrineEntries
+        );
     }
 
     public function countAll(): int
