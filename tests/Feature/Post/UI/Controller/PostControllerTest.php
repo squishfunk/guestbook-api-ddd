@@ -96,4 +96,31 @@ class PostControllerTest extends WebTestCase
         $this->assertEquals('Adam', $responseData['author']);
         $this->assertEquals('Hello Poland!', $responseData['message']);
     }
+
+    public function testDeletePost(): void
+    {
+        $post = new Post(
+            new GuestAuthor('Adam'),
+            'Hello world!',
+        );
+
+        $postDoctrine = DoctrinePost::fromDomain($post);
+        $this->entityManager->persist($postDoctrine);
+        $this->entityManager->flush();
+
+        $id = $postDoctrine->getId();
+
+        $this->client->request(
+            'DELETE',
+            '/posts/'.$id,
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json']
+        );
+
+
+        $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+
+        $responseData = json_decode($this->client->getResponse()->getContent() ?: '', true);
+    }
 }

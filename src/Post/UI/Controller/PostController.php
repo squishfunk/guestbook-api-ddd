@@ -3,8 +3,10 @@
 namespace App\Post\UI\Controller;
 
 use App\Post\Application\Command\CreatePostCommand;
+use App\Post\Application\Command\DeletePostCommand;
 use App\Post\Application\Command\UpdatePostCommand;
 use App\Post\Application\Handler\CreatePostHandler;
+use App\Post\Application\Handler\DeletePostHandler;
 use App\Post\Application\Handler\GetPostsHandler;
 use App\Post\Application\Handler\UpdatePostHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -34,7 +36,7 @@ final class PostController extends AbstractController
     }
 
     #[Route('/{id}', name: 'edit', methods: ['PUT'])]
-    public function edit(string $id, Request $request, UpdatePostHandler $updatePostsHandler): JsonResponse
+    public function edit(string $id, Request $request, UpdatePostHandler $updatePostHandler): JsonResponse
     {
 
         $data = json_decode($request->getContent(), true);
@@ -43,9 +45,22 @@ final class PostController extends AbstractController
             $data['message'] ?? null,
         );
 
-        $result = $updatePostsHandler->__invoke($command);
+        $result = $updatePostHandler->__invoke($command);
 
         return new JsonResponse($result, 200);
+    }
+
+    #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
+    public function delete(string $id, DeletePostHandler $deletePostHandler): JsonResponse
+    {
+
+        $command = new DeletePostCommand(
+            $id
+        );
+
+        $deletePostHandler->__invoke($command);
+
+        return new JsonResponse([], 200);
     }
 
     #[Route('', name: 'list', methods: ['GET'])]

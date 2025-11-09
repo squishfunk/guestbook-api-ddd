@@ -15,5 +15,6 @@ interface PostRepositoryInterface
     public function update(Post $post): void;
     public function save(Post $post): void;
     public function countAll(): int;
+    public function delete(Post $post): void;
 }
 

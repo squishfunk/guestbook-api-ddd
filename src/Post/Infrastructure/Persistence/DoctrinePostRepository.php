@@ -74,5 +74,13 @@ class DoctrinePostRepository implements PostRepositoryInterface
     {
         return $this->repository->find($id)?->toDomain();
     }
+
+    public function delete(Post $post): void
+    {
+        $doctrinePost = DoctrinePost::fromDomain($post);
+
+        $this->entityManager->remove($doctrinePost);
+        $this->entityManager->flush();
+    }
 }
 
