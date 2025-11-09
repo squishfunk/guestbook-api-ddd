@@ -54,6 +54,11 @@ class Post
         return $this->id;
     }
 
+    public function updateMessage(string $message): void
+    {
+        $this->setMessage($message);
+    }
+
     private function setMessage(string $message): void
     {
         if(strlen($message) >= Post::MAX_MESSAGE_LENGTH){

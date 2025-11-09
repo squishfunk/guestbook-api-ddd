@@ -82,7 +82,7 @@ final class UserController extends AbstractController
         $userView = $updateUserHandler->__invoke($command);
 
         return new JsonResponse([
-            'success' => true,
+            'success' => true, /* TODO wywalić success wszedzie gdzie to mozliwe */
             'user' => $userView
         ]);
     }

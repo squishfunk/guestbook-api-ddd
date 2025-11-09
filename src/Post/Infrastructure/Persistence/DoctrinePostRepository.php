@@ -19,6 +19,19 @@ class DoctrinePostRepository implements PostRepositoryInterface
         $this->repository = $entityManager->getRepository(DoctrinePost::class);
     }
 
+    public function update(Post $post): void
+    {
+        $doctrinePost = $this->repository->find($post->id());
+
+        if (!$doctrinePost) {
+            throw new \RuntimeException('User not found');
+        }
+
+        $doctrinePost->setMessage($post->message());
+
+        $this->entityManager->flush();
+    }
+
     public function save(Post $post): void
     {
         $doctrinePost = DoctrinePost::fromDomain($post);

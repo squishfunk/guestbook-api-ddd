@@ -12,6 +12,7 @@ interface PostRepositoryInterface
      * @return list<Post>
      */
     public function findAllPaginated(int $page, int $limit): array;
+    public function update(Post $post): void;
     public function save(Post $post): void;
     public function countAll(): int;
 }
