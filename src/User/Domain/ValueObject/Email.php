@@ -4,12 +4,15 @@ namespace App\User\Domain\ValueObject;
 
 class Email
 {
+    /**
+     * @var non-empty-string
+     */
     private string $value;
 
     public function __construct(string $value)
     {
         $value = trim($value);
-        
+
         if (empty($value)) {
             throw new \DomainException('Email cannot be empty.');
         }
@@ -25,6 +28,9 @@ class Email
         $this->value = strtolower($value);
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function value(): string
     {
         return $this->value;

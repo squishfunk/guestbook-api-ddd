@@ -54,7 +54,7 @@ class DoctrineGuestbookEntryRepository implements GuestbookEntryRepositoryInterf
             ->from(DoctrineGuestbookEntry::class, 'e')
             ->getQuery();
 
-        return $query->getSingleScalarResult();
+        return (int) $query->getSingleScalarResult();
     }
 
     public function findById(string $id): ?GuestbookEntry

@@ -25,7 +25,9 @@ class UserControllerTest extends WebTestCase
     protected function setUp(): void
     {
         $this->client = static::createClient();
-        $this->entityManager = $this->client->getContainer()->get('doctrine.orm.entity_manager');
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = $this->client->getContainer()->get('doctrine.orm.entity_manager');
+        $this->entityManager = $entityManager;
 
         $loader = new Loader();
         $loader->addFixture(new UserFixtures());
@@ -56,7 +58,7 @@ class UserControllerTest extends WebTestCase
 
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 
-        $responseData = json_decode($this->client->getResponse()->getContent(), true);
+        $responseData = json_decode($this->client->getResponse()->getContent() ?: '', true);
 
         $this->assertArrayHasKey('users', $responseData);
         $this->assertArrayHasKey('total', $responseData);
@@ -105,7 +107,7 @@ class UserControllerTest extends WebTestCase
 
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 
-        $responseData = json_decode($this->client->getResponse()->getContent(), true);
+        $responseData = json_decode($this->client->getResponse()->getContent() ?: '', true);
         $this->assertTrue($responseData['success']);
         $this->assertArrayHasKey('user', $responseData);
         $this->assertEquals('Test User', $responseData['user']['name']);
@@ -146,12 +148,12 @@ class UserControllerTest extends WebTestCase
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            json_encode($updateData)
+            json_encode($updateData) ?: ''
         );
 
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 
-        $responseData = json_decode($this->client->getResponse()->getContent(), true);
+        $responseData = json_decode($this->client->getResponse()->getContent() ?: '', true);
         $this->assertTrue($responseData['success']);
         $this->assertArrayHasKey('user', $responseData);
         $this->assertEquals('Updated Name', $responseData['user']['name']);
@@ -184,12 +186,12 @@ class UserControllerTest extends WebTestCase
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            json_encode($updateData)
+            json_encode($updateData) ?: ''
         );
 
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 
-        $responseData = json_decode($this->client->getResponse()->getContent(), true);
+        $responseData = json_decode($this->client->getResponse()->getContent() ?: '', true);
         $this->assertTrue($responseData['success']);
         $this->assertEquals('Updated Name Only', $responseData['user']['name']);
         $this->assertEquals('original@test.com', $responseData['user']['email']); // Email unchanged
@@ -205,7 +207,7 @@ class UserControllerTest extends WebTestCase
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            json_encode($updateData)
+            json_encode($updateData) ?: ''
         );
 
         $this->assertEquals(Response::HTTP_UNAUTHORIZED, $this->client->getResponse()->getStatusCode());
@@ -232,7 +234,7 @@ class UserControllerTest extends WebTestCase
 
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 
-        $responseData = json_decode($this->client->getResponse()->getContent(), true);
+        $responseData = json_decode($this->client->getResponse()->getContent() ?: '', true);
         $this->assertTrue($responseData['success']);
         $this->assertEquals('User deleted successfully', $responseData['message']);
 
@@ -269,7 +271,7 @@ class UserControllerTest extends WebTestCase
 
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 
-        $responseData = json_decode($this->client->getResponse()->getContent(), true);
+        $responseData = json_decode($this->client->getResponse()->getContent() ?: '', true);
         $this->assertArrayHasKey('users', $responseData);
         $this->assertArrayHasKey('total', $responseData);
         $this->assertArrayHasKey('page', $responseData);

@@ -100,7 +100,7 @@ class DoctrineUserRepository implements UserRepositoryInterface
             ->from(DoctrineUser::class, 'u')
             ->getQuery();
 
-        return $query->getSingleScalarResult();
+        return (int) $query->getSingleScalarResult();
     }
 
     public function findByEmailVerificationToken(string $token): ?User

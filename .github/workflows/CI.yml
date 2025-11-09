@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Symfony
+name: CI
 
 on:
   push:
@@ -57,6 +57,9 @@ jobs:
       run: php bin/console doctrine:migrations:migrate --no-interaction
       env:
           APP_ENV: test
+
+    - name: Run PHPStan
+      run: vendor/bin/phpstan analyse
 
     - name: Execute tests (Unit and Feature tests) via PHPUnit
       run: vendor/bin/phpunit

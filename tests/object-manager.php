@@ -1,6 +1,8 @@
 <?php
 
 use App\Kernel;
+use Doctrine\Bundle\DoctrineBundle\Registry;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Dotenv\Dotenv;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -9,4 +11,11 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
 $kernel->boot();
-return $kernel->getContainer()->get('doctrine')->getManager();
+
+/** @var Registry $doctrine */
+$doctrine = $kernel->getContainer()->get('doctrine');
+
+/** @var EntityManagerInterface $entityManager */
+$entityManager = $doctrine->getManager();
+
+return $entityManager;
