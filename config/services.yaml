@@ -16,8 +16,8 @@ services:
     App\:
         resource: '../src/'
 
-    App\GuestbookEntry\UI\Controller\:
-        resource: '../src/GuestbookEntry/UI/Controller'
+    App\Post\UI\Controller\:
+        resource: '../src/Post/UI/Controller'
 
     # Security services
     App\User\Infrastructure\Security\AppUserProvider:

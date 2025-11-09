@@ -1,5 +1,5 @@
-guestbook_entry_controllers:
-    resource: ../../src/GuestbookEntry/UI/Controller/
+post_controllers:
+    resource: ../../src/Post/UI/Controller/
     type: attribute
 
 user_controllers:

@@ -1,7 +1,6 @@
 <?php
 
 namespace App\User\Application\ReadModel;
-use App\GuestbookEntry\Application\ReadModel\GuestbookEntryView;
 
 readonly class UsersView
 {

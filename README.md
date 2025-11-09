@@ -1,6 +1,6 @@
-# Guestbook API
+# Post API
 
-Modern guestbook API built with Symfony 7.3 using DDD (Domain-Driven Design) architecture and CQRS.
+Modern post API built with Symfony 7.3 using DDD (Domain-Driven Design) architecture and CQRS.
 
 ## 🚀 Features
 
@@ -11,9 +11,9 @@ Modern guestbook API built with Symfony 7.3 using DDD (Domain-Driven Design) arc
 - **Account Deletion** - deleting own account
 - **User List** - available for administrators
 
-### Guestbook
-- **Adding Entries** - anonymous and registered entries
-- **Browsing Entries** - pagination and filtering
+### Posts
+- **Adding Posts** - anonymous and registered posts
+- **Browsing Posts** - pagination and filtering
 - **Content Validation** - length and format restrictions
 
 ## 🏗️ Architecture
@@ -27,7 +27,7 @@ src/
 │   ├── Application/         # Use cases (CQRS)
 │   ├── Infrastructure/      # External implementations
 │   └── UI/                 # API controllers
-├── GuestbookEntry/          # Guestbook domain
+├── Post/                     # Post domain
 └── Shared/                 # Shared components
 ```
 
@@ -129,10 +129,10 @@ PUT    /user/me        # Profile update (ROLE_USER)
 DELETE /user           # Account deletion (ROLE_USER)
 ```
 
-### Guestbook
+### Posts
 ```
-GET  /guestbook        # Entry list
-POST /guestbook        # Add entry
+GET  /posts        # Post list
+POST /posts        # Add post
 ```
 
 ## 🧪 Testing
@@ -159,7 +159,7 @@ php bin/phpunit --coverage-html coverage/
 ```
 tests/
 ├── Unit/              # Unit tests
-│   └── GuestbookEntry/
+│   └── Post/
 ├── Feature/            # Functional tests
 │   └── User/
 └── DataFixtures/       # Test data
@@ -199,9 +199,9 @@ curl -X POST http://localhost:8000/auth/login \
   }'
 ```
 
-### Adding guestbook entry
+### Adding post
 ```bash
-curl -X POST http://localhost:8000/guestbook \
+curl -X POST http://localhost:8000/posts \
   -H "Content-Type: application/json" \
   -d '{
     "author": {
@@ -220,10 +220,10 @@ curl -X POST http://localhost:8000/guestbook \
 - **Repository**: `UserRepositoryInterface`
 - **Commands**: `CreateUserCommand`, `UpdateUserCommand`, `DeleteUserCommand`
 
-### GuestbookEntry Domain
-- **Entity**: `GuestbookEntry` - guestbook entry
+### Post Domain
+- **Entity**: `Post` - post
 - **Value Objects**: `AuthorInterface`, `GuestAuthor`, `RegisteredAuthor`
-- **Commands**: `CreateGuestbookEntryCommand`
+- **Commands**: `CreatePostCommand`
 
 ## 🔒 Security
 

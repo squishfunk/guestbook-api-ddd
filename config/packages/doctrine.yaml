@@ -18,11 +18,11 @@ doctrine:
             Doctrine\DBAL\Platforms\PostgreSQLPlatform: identity
         auto_mapping: true
         mappings:
-            GuestbookEntry:
+            Post:
                 is_bundle: false
                 type: attribute
-                dir: '%kernel.project_dir%/src/GuestbookEntry/Infrastructure/Persistence'
-                prefix: 'App\GuestbookEntry\Infrastructure\Persistence'
+                dir: '%kernel.project_dir%/src/Post/Infrastructure/Persistence'
+                prefix: 'App\Post\Infrastructure\Persistence'
             User:
                 is_bundle: false
                 type: attribute
