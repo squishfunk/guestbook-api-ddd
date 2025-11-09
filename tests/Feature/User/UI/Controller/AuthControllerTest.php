@@ -59,7 +59,6 @@ class AuthControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
 
         $responseData = json_decode($this->client->getResponse()->getContent() ?: '', true);
-        $this->assertTrue($responseData['success']);
         $this->assertEquals('User registered successfully, please confirm your email address.', $responseData['message']);
         $this->assertArrayHasKey('user', $responseData);
         $this->assertEquals('New User', $responseData['user']['name']);
@@ -85,7 +84,6 @@ class AuthControllerTest extends WebTestCase
 
         $responseData = json_decode($this->client->getResponse()->getContent() ?: '', true);
 
-        $this->assertFalse($responseData['success']);
         $this->assertArrayHasKey('message', $responseData);
         $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $this->client->getResponse()->getStatusCode());
     }
@@ -108,7 +106,6 @@ class AuthControllerTest extends WebTestCase
 
         $responseData = json_decode($this->client->getResponse()->getContent() ?: '', true);
 
-        $this->assertFalse($responseData['success']);
         $this->assertArrayHasKey('message', $responseData);
         $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $this->client->getResponse()->getStatusCode());
     }
@@ -151,7 +148,6 @@ class AuthControllerTest extends WebTestCase
 
         $responseData = json_decode($this->client->getResponse()->getContent() ?: '', true);
 
-        $this->assertFalse($responseData['success']);
         $this->assertArrayHasKey('message', $responseData);
         $this->assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $this->client->getResponse()->getStatusCode());
     }
@@ -186,7 +182,6 @@ class AuthControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 
         $responseData = json_decode($this->client->getResponse()->getContent() ?: '', true);
-        $this->assertTrue($responseData['success']);
         $this->assertEquals('Login successful', $responseData['message']);
         $this->assertArrayHasKey('token', $responseData);
         $this->assertArrayHasKey('user', $responseData);
@@ -224,7 +219,6 @@ class AuthControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_UNAUTHORIZED, $this->client->getResponse()->getStatusCode());
 
         $responseData = json_decode($this->client->getResponse()->getContent() ?: '', true);
-        $this->assertFalse($responseData['success']);
         $this->assertEquals('Invalid credentials', $responseData['message']);
     }
 
@@ -247,7 +241,6 @@ class AuthControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_UNAUTHORIZED, $this->client->getResponse()->getStatusCode());
 
         $responseData = json_decode($this->client->getResponse()->getContent() ?: '', true);
-        $this->assertFalse($responseData['success']);
         $this->assertEquals('Invalid credentials', $responseData['message']);
     }
 
@@ -269,7 +262,6 @@ class AuthControllerTest extends WebTestCase
 
 
         $responseData = json_decode($this->client->getResponse()->getContent() ?: '', true);
-        $this->assertFalse($responseData['success']);
         $this->assertArrayHasKey('message', $responseData);
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
     }
@@ -293,7 +285,6 @@ class AuthControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_UNAUTHORIZED, $this->client->getResponse()->getStatusCode());
 
         $responseData = json_decode($this->client->getResponse()->getContent() ?: '', true);
-        $this->assertFalse($responseData['success']);
         $this->assertEquals('Login failed', $responseData['message']);
     }
 
@@ -310,7 +301,6 @@ class AuthControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 
         $responseData = json_decode($this->client->getResponse()->getContent() ?: '', true);
-        $this->assertTrue($responseData['success']);
         $this->assertArrayHasKey('message', $responseData);
     }
 
@@ -327,7 +317,6 @@ class AuthControllerTest extends WebTestCase
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
         $responseData = json_decode($this->client->getResponse()->getContent() ?: '', true);
-        $this->assertFalse($responseData['success']);
         $this->assertEquals('Email and password are required', $responseData['message']);
     }
 
@@ -344,7 +333,6 @@ class AuthControllerTest extends WebTestCase
 
         $responseData = json_decode($this->client->getResponse()->getContent() ?: '', true);
 
-        $this->assertFalse($responseData['success']);
         $this->assertArrayHasKey('message', $responseData);
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
     }

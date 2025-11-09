@@ -20,28 +20,24 @@ final class ApiExceptionListener
 
         if ($e instanceof NotEncodableValueException) {
             $event->setResponse(new JsonResponse([
-                'success' => false,
                 'message' => 'Invalid JSON format.',
             ], Response::HTTP_BAD_REQUEST));
         }
 
         if ($e instanceof DomainException) {
             $event->setResponse(new JsonResponse([
-                'success' => false,
                 'message' => $e->getMessage(),
             ], Response::HTTP_UNPROCESSABLE_ENTITY));
         }
 
         if ($e instanceof JsonException) {
             $event->setResponse(new JsonResponse([
-                'success' => false,
                 'message' => 'Invalid JSON format.',
             ], Response::HTTP_BAD_REQUEST));
         }
 
         if ($e instanceof AccessDeniedHttpException) {
             $event->setResponse(new JsonResponse([
-                'success' => false,
                 'message' => 'Access denied: ' . $e->getMessage()
             ], Response::HTTP_FORBIDDEN));
         }

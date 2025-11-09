@@ -108,7 +108,6 @@ class UserControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 
         $responseData = json_decode($this->client->getResponse()->getContent() ?: '', true);
-        $this->assertTrue($responseData['success']);
         $this->assertArrayHasKey('user', $responseData);
         $this->assertEquals('Test User', $responseData['user']['name']);
         $this->assertEquals('test@test.com', $responseData['user']['email']);
@@ -154,7 +153,6 @@ class UserControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 
         $responseData = json_decode($this->client->getResponse()->getContent() ?: '', true);
-        $this->assertTrue($responseData['success']);
         $this->assertArrayHasKey('user', $responseData);
         $this->assertEquals('Updated Name', $responseData['user']['name']);
         $this->assertEquals('updated@test.com', $responseData['user']['email']);
@@ -192,7 +190,6 @@ class UserControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 
         $responseData = json_decode($this->client->getResponse()->getContent() ?: '', true);
-        $this->assertTrue($responseData['success']);
         $this->assertEquals('Updated Name Only', $responseData['user']['name']);
         $this->assertEquals('original@test.com', $responseData['user']['email']); // Email unchanged
     }
@@ -235,7 +232,6 @@ class UserControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 
         $responseData = json_decode($this->client->getResponse()->getContent() ?: '', true);
-        $this->assertTrue($responseData['success']);
         $this->assertEquals('User deleted successfully', $responseData['message']);
 
         // Verify user is deleted

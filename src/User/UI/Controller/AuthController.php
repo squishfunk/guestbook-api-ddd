@@ -44,7 +44,6 @@ final class AuthController extends AbstractController
         $violations = $this->validator->validate($command);
         if (count($violations) > 0) {
             return new JsonResponse([
-                'success' => false,
                 'message' => (string) $violations
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
@@ -52,7 +51,6 @@ final class AuthController extends AbstractController
         $userView = $createUserHandler->__invoke($command);
 
         return new JsonResponse([
-            'success' => true,
             'message' => 'User registered successfully, please confirm your email address.',
             'user' => $userView
         ], 201);
@@ -65,7 +63,6 @@ final class AuthController extends AbstractController
 
         if (!isset($data['email']) || !isset($data['password'])) {
             return new JsonResponse([
-                'success' => false,
                 'message' => 'Email and password are required'
             ], 400);
         }
@@ -75,7 +72,6 @@ final class AuthController extends AbstractController
 
             if (!$user || !$user->password()->verify($data['password'])) {
                 return new JsonResponse([
-                    'success' => false,
                     'message' => 'Invalid credentials'
                 ], 401);
             }
@@ -83,7 +79,6 @@ final class AuthController extends AbstractController
             $token = $this->jwtManager->create($user);
 
             return new JsonResponse([
-                'success' => true,
                 'message' => 'Login successful',
                 'token' => $token,
                 'user' => new UserView(
@@ -96,7 +91,6 @@ final class AuthController extends AbstractController
             ]);
         } catch (\Exception $e) {
             return new JsonResponse([
-                'success' => false,
                 'message' => 'Login failed'
             ], 401);
         }
@@ -107,7 +101,6 @@ final class AuthController extends AbstractController
     {
         // Symfony will handle the logout via the firewall
         return new JsonResponse([
-            'success' => true,
             'message' => 'Logout successful'
         ]);
     }

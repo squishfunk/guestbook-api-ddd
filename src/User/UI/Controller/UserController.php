@@ -41,7 +41,6 @@ final class UserController extends AbstractController
         $deleteUserHandler->__invoke($command);
 
         return new JsonResponse([
-            'success' => true,
             'message' => 'User deleted successfully'
         ]);
     }
@@ -53,7 +52,6 @@ final class UserController extends AbstractController
         $user = $this->getAuthenticatedUser();
 
         return new JsonResponse([
-            'success' => true,
             'user' => new UserView(
                 $user->id()->value(),
                 $user->name(),
@@ -82,7 +80,6 @@ final class UserController extends AbstractController
         $userView = $updateUserHandler->__invoke($command);
 
         return new JsonResponse([
-            'success' => true, /* TODO wywalić success wszedzie gdzie to mozliwe */
             'user' => $userView
         ]);
     }
