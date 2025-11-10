@@ -2,13 +2,13 @@
 
 namespace App\User\UI\Controller;
 
+use App\Shared\UI\Controller\GetAuthenticatedUserTrait;
 use App\User\Application\Command\DeleteUserCommand;
 use App\User\Application\Command\UpdateUserCommand;
 use App\User\Application\Handler\DeleteUserHandler;
 use App\User\Application\Handler\GetUsersHandler;
 use App\User\Application\Handler\UpdateUserHandler;
 use App\User\Application\ReadModel\UserView;
-use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,6 +18,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[Route('/user', name: 'user')]
 final class UserController extends AbstractController
 {
+    use GetAuthenticatedUserTrait;
+
     public function __construct(
     ) {}
 
@@ -82,19 +84,5 @@ final class UserController extends AbstractController
         return new JsonResponse([
             'user' => $userView
         ]);
-    }
-
-    /**
-     * @return User
-     */
-    private function getAuthenticatedUser(): User
-    {
-        $user = $this->getUser();
-
-        if (!$user instanceof User) {
-            throw new \RuntimeException('User is not authenticated or invalid user type.');
-        }
-
-        return $user;
     }
 }
