@@ -9,6 +9,10 @@ use App\Post\Domain\Entity\Post;
 use App\Post\Domain\ValueObject\GuestAuthor;
 use App\Post\Infrastructure\Persistence\DoctrinePost;
 use App\Tests\DataFixtures\UserFixtures;
+use App\User\Domain\Entity\User;
+use App\User\Domain\ValueObject\Email;
+use App\User\Domain\ValueObject\Password;
+use App\User\Infrastructure\Persistence\DoctrineUser;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Loader;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
@@ -39,10 +43,22 @@ class PostControllerTest extends WebTestCase
 
     public function testCreatePost(): void
     {
+        // Create user
+        $user = new User(
+            'Adam',
+            new Email('adam@test.com'),
+            new Password('TestPass123')
+        );
+
+        $userDoctrine = DoctrineUser::fromDomain($user);
+        $this->entityManager->persist($userDoctrine);
+        $this->entityManager->flush();
+
+        // Login user
+        $this->client->loginUser($user);
+
         $createData = [
-            'author' => 'Adam',
             'message' => 'Hello world!',
-            'email' => 'adam@test.com',
         ];
 
         $this->client->request(

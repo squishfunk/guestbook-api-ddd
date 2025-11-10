@@ -9,27 +9,35 @@ use App\Post\Application\Handler\CreatePostHandler;
 use App\Post\Application\Handler\DeletePostHandler;
 use App\Post\Application\Handler\GetPostsHandler;
 use App\Post\Application\Handler\UpdatePostHandler;
+use App\Shared\UI\Controller\GetAuthenticatedUserTrait;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route('/posts', name: 'posts')]
 final class PostController extends AbstractController
 {
+    use GetAuthenticatedUserTrait;
 
     public function __construct(
-        private SerializerInterface $serializer,
     ){}
 
     #[Route('', name: 'create', methods: ['POST'])]
     public function create(Request $request, CreatePostHandler $createPostHandler): JsonResponse
     {
 
-        $command = $this->serializer->deserialize($request->getContent(), CreatePostCommand::class, 'json');
+        $user = $this->getAuthenticatedUser();
+        $data = json_decode($request->getContent(), true);
+
+        $command = new CreatePostCommand(
+            $user->name(),
+                $data['message'],
+            $user->email()->value(),
+            $user->id()->value()
+        );
+
         $postView = $createPostHandler->__invoke($command);
 
         return new JsonResponse($postView, Response::HTTP_CREATED);
