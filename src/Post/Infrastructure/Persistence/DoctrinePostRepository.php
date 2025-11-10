@@ -24,18 +24,67 @@ class DoctrinePostRepository implements PostRepositoryInterface
         $doctrinePost = $this->repository->find($post->id());
 
         if (!$doctrinePost) {
-            throw new \RuntimeException('User not found');
+            throw new \RuntimeException('Post not found');
         }
 
         $doctrinePost->setMessage($post->message());
+
+        // Update comments
+        $existingCommentIds = [];
+        foreach ($doctrinePost->getComments() as $existingComment) {
+            $existingCommentIds[] = $existingComment->getId();
+        }
+
+        $domainCommentIds = [];
+        foreach ($post->comments() as $domainComment) {
+            $domainCommentIds[] = $domainComment->id();
+        }
+
+        // Remove comments that are no longer in the domain
+        foreach ($doctrinePost->getComments() as $existingComment) {
+            if (!in_array($existingComment->getId(), $domainCommentIds)) {
+                $this->entityManager->remove($existingComment);
+            }
+        }
+
+        // Add or update comments
+        foreach ($post->comments() as $domainComment) {
+            $existingComment = null;
+            foreach ($doctrinePost->getComments() as $comment) {
+                if ($comment->getId() === $domainComment->id()) {
+                    $existingComment = $comment;
+                    break;
+                }
+            }
+
+            if ($existingComment === null) {
+                $newComment = DoctrineComment::fromDomain($domainComment, $doctrinePost);
+                $doctrinePost->getComments()->add($newComment);
+                $this->entityManager->persist($newComment);
+            }
+        }
 
         $this->entityManager->flush();
     }
 
     public function save(Post $post): void
     {
+        $existingDoctrinePost = $this->repository->find($post->id());
+        
+        if ($existingDoctrinePost) {
+            // Update existing post
+            $this->update($post);
+            return;
+        }
+
         $doctrinePost = DoctrinePost::fromDomain($post);
         $this->entityManager->persist($doctrinePost);
+        
+        // Persist comments
+        foreach ($doctrinePost->getComments() as $comment) {
+            $this->entityManager->persist($comment);
+        }
+        
         $this->entityManager->flush();
     }
 
@@ -47,6 +96,8 @@ class DoctrinePostRepository implements PostRepositoryInterface
         $query = $this->entityManager->createQueryBuilder()
             ->select('p')
             ->from(DoctrinePost::class, 'p')
+            ->leftJoin('p.comments', 'c')
+            ->addSelect('c')
             ->orderBy('p.createdAt', 'DESC')
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
@@ -72,12 +123,27 @@ class DoctrinePostRepository implements PostRepositoryInterface
 
     public function findById(string $id): ?Post
     {
-        return $this->repository->find($id)?->toDomain();
+        $query = $this->entityManager->createQueryBuilder()
+            ->select('p')
+            ->from(DoctrinePost::class, 'p')
+            ->leftJoin('p.comments', 'c')
+            ->addSelect('c')
+            ->where('p.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery();
+
+        $doctrinePost = $query->getOneOrNullResult();
+
+        return $doctrinePost?->toDomain();
     }
 
     public function delete(Post $post): void
     {
-        $doctrinePost = DoctrinePost::fromDomain($post);
+        $doctrinePost = $this->repository->find($post->id());
+
+        if (!$doctrinePost) {
+            throw new \RuntimeException('Post not found');
+        }
 
         $this->entityManager->remove($doctrinePost);
         $this->entityManager->flush();

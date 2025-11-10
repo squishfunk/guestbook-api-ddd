@@ -4,8 +4,6 @@ namespace App\Post\Domain\Entity;
 
 use App\Post\Domain\ValueObject\AuthorInterface;
 use DateTimeImmutable;
-use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
 
 class Post
@@ -21,16 +19,27 @@ class Post
 
     private DateTimeImmutable $createdAt;
 
-    public function __construct(AuthorInterface $author, string $message, ?DateTimeImmutable $createdAt = null)
+    /** @var list<Comment> */
+    private array $comments;
+
+    /**
+     * @param list<Comment> $comments
+     */
+    public function __construct(AuthorInterface $author, string $message, ?DateTimeImmutable $createdAt = null, ?string $id = null, array $comments = [])
     {
-        $this->id = Uuid::v1();
+        $this->id = $id ?? Uuid::v1();
         $this->setAuthor($author);
         $this->setMessage($message);
+        $this->comments = [];
 
         if($createdAt){
             $this->createdAt = $createdAt;
         }else{
             $this->createdAt = new DateTimeImmutable();
+        }
+
+        foreach($comments as $comment){
+            $this->addComment($comment);
         }
     }
 
@@ -57,6 +66,23 @@ class Post
     public function updateMessage(string $message): void
     {
         $this->setMessage($message);
+    }
+
+    public function addComment(Comment $comment): void
+    {
+        if($comment->postId() !== $this->id){
+            throw new \DomainException('Comment does not belong to this post.');
+        }
+
+        $this->comments[] = $comment;
+    }
+
+    /**
+     * @return list<Comment>
+     */
+    public function comments(): array
+    {
+        return $this->comments;
     }
 
     private function setMessage(string $message): void
